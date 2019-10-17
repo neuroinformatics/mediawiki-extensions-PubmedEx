@@ -1,0 +1,102 @@
+Array
+(
+    [xml] => Array
+        (
+            [0] => Array
+                (
+                    [Count] => Array
+                        (
+                            [0] => 9
+                        )
+
+                    [RetMax] => Array
+                        (
+                            [0] => 9
+                        )
+
+                    [RetStart] => Array
+                        (
+                            [0] => 0
+                        )
+
+                    [IdList] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [Id] => Array
+                                        (
+                                            [0] => 16381827
+                                            [1] => 16239495
+                                            [2] => 15982415
+                                            [3] => 15980568
+                                            [4] => 15980456
+                                            [5] => 15784146
+                                            [6] => 15260896
+                                            [7] => 12542425
+                                            [8] => 11675023
+                                        )
+
+                                )
+
+                        )
+
+                    [TranslationSet] => Array
+                        (
+                            [0] => Array
+                                (
+                                )
+
+                        )
+
+                    [TranslationStack] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [TermSet] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [Term] => Array
+                                                        (
+                                                            [0] => Bohne-lang[All Fields]
+                                                        )
+
+                                                    [Field] => Array
+                                                        (
+                                                            [0] => All Fields
+                                                        )
+
+                                                    [Count] => Array
+                                                        (
+                                                            [0] => 9
+                                                        )
+
+                                                    [Explode] => Array
+                                                        (
+                                                            [0] => Y
+                                                        )
+
+                                                )
+
+                                        )
+
+                                    [OP] => Array
+                                        (
+                                            [0] => GROUP
+                                        )
+
+                                )
+
+                        )
+
+                    [QueryTranslation] => Array
+                        (
+                            [0] => Bohne-lang[All Fields]
+                        )
+
+                )
+
+        )
+
+)
+

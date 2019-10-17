@@ -1,0 +1,9 @@
+# 28.04.2010 - Andreas 
+Fix a encoding bug that comes from etools. Now I force a utf8_decode in nusoap before parsing. It is more a work around.
+
+# 18.12.2010 - Andreas
+Adapt title set to changing SOAP answer of Pubmed.
+
+# 24.01.2012  
+# Added patch in layout by Spencer Bliven
+

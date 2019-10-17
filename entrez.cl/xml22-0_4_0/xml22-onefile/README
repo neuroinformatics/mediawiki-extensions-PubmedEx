@@ -1,0 +1,16 @@
+
+README FILE FOR xml22/xml22-onefile
+===================================
+
+In this directory you can find a file xml22.inc that contains all the
+functions of xml22 in one single include file. This is for those who
+do not want to include five instead of the one file of versions
+earlier than 0.3.0.
+
+All blank lines and comments are deleted in this file.
+
+Run
+
+  gunzip xml22.inc.gz
+
+to unzip the file.

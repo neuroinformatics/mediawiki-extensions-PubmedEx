@@ -1,0 +1,54 @@
+
+README FILE FOR xml22/tests
+===========================
+
+
+Run the tests
+-------------
+
+To run the tests you may either point your browser to this directory
+which should be accessible by the web server or you run the tests from
+the command line. This requires the CGI version of PHP to be
+installed.
+
+Try 
+
+	php4 -q testsrch.php -h
+
+or
+
+    php4 -q testedit.php -h
+
+to get information about options.
+
+
+
+Run the tests using GNU make
+----------------------------
+
+You may use GNU make to run the tests. Simply type
+
+  make test
+
+or to get more output
+
+  make dump
+
+  make profile
+
+  make profile REPEAT=<num>
+
+
+
+Note
+----
+
+In order to get the proper profiling information for your system, you
+should edit "testsrch.php" and "testedit.php" at line 10. The default
+value of _SC_CLK_TCK is set to:
+
+  $_SC_CLK_TCK = 100; 
+
+There seems to be no way in PHP to call the POSIX function sysconf()
+to get _SC_CLK_TCK dynamically. Set the value to your system's
+configuration.

@@ -1,0 +1,1567 @@
+=pod
+
+=head1 NAME
+
+xml22 - search and edit XML files with PHP
+
+=head1 VERSION
+
+xml22 0.4.0
+
+=head1 DESCRIPTION
+
+=head2 Overview
+
+This PHP4 code parses an XML document into a multidimensional
+array. The parser recognizes and processes almost all of XML,
+including processing instructions, general or external entities and
+notations. In addition many functions are provided to search and edit
+the document, build a new one and write it back to a string or to a
+file. The B<xml22> code is aimed to provide a functionality comparable
+to the Document Object Model in a different manner, offering its own
+API.
+
+=head2 Tags
+
+What I call a "tag" here should better called a "node" but this term
+is not used to prevent confusion with the Document Object Model. The
+B<xml22> code does not conform to the W3C recommendation. It cannot,
+at least because it is not written object oriented.
+
+A "node" and a "tag" are nearly the same thing in this
+documentation. A "tag" is actually defined by two XML tags, one
+opening and one closing. Also a "text node" of the DOM is not
+considered as a separate "tag", it is considered as the "content" of a
+tag. In most cases this makes no difference, but there are some
+restrictions that result of this model (see L</RESTRICTIONS>).
+
+Any tag (or node) is represented by an array that may be
+multidimensional if there are any children of that tag in the XML tree
+or if there are attributes set for this tag. The array that represents
+the document is nothing else but a list, i.e. an integer indexed array
+of those tags.
+
+The order of the tags in the array represents the order of the nodes
+in the document, but the indices of the tags are not equal to their
+logical level in respect to the document. The root node of the
+document usually doesn't have the index of 0 in the document
+array. For well formed XML documents you will find at this point the
+XML version string. If you need the root node, use the function
+L</xml22_get_root>.
+
+=head2 Searching and Editing
+
+The code is optimized for search operations. Editing is a little
+expensive, but it works.
+
+Searching and editing can take place at three levels. You may access
+the document at the abstract XML level, at the tag level or even at
+the internal array level if you really need this. The latter is not
+recommended, and editing at the tag level should be done very
+carefuly.
+
+The main difference between XML level and tag level is that for the
+tag level you have to take care that some important fields of the tag
+array are defined and even initialized with the proper values. For the
+XML level you don't have to care about this. 
+
+For instance, if you need a particular tag '<wanted>' with a special
+content, say 'John Silver', you have two ways of searching. The first
+performs an XML level search:
+
+  $doc         = xml22_parse( 'pirate.xml' );
+  $firstresult = xml22_get_all_of_name( $doc, 'wanted' );
+  $nextresult  = xml22_get_all_of_content( $firstresult, 
+                 '/John Silver/' );
+  $pirate      = array_shift( $nextresult ); // to get the 
+                                             // first occurance
+
+This is the corresponding tag level search:
+
+  $doc         = xml22_parse( 'pirate.xml' );
+  $search      = array( 'tag'     => '/wanted/',
+                        'content' => '/John Silver/' );
+  $result      = xml22_get_by_regex( $doc, $search, XML22_GET_FIRST );
+  $pirate      = array_shift( $result );
+
+It is up to you which way you prefer.
+
+I prefer to edit at the abstract XML level and this is what B<xml22>
+is really made for. The DOM on the other hand allows I<only> editing
+at the XML level, so B<xml22> may be considered a little more flexible
+though the code may look not that pretty.
+
+In the function documentation below the functions are marked to belong
+to the XML level or to the tag level. Some of them belong to both
+because it is hard to decide wether they are those or that.
+
+The performance of the searching functions differs considerably. Very
+fast are functions like L</xml22_get_first_child>,
+L</xml22_get_last_child>, L</xml22_get_next_sibling>,
+L</xml22_get_prev_sibling> or L</xml22_get_parent> because they cost only
+some array operations. Slow are functions that search for specific
+values like L</xml22_get_by_regex>, L</xml22_get_all_of_content>,
+L</xml22_get_all_of_name> or L</xml22_get_by_id>. The performance of the
+others is somewhere in between.
+
+Note: As long as B<xml22> is still under development, from time to
+time you may find yourself in situations where you have to touch the
+tag arrays directly. This will be obsolete in the future as the code
+provides more and more functions that do this for you.
+
+=head2 Functions Returning Tags
+
+The B<xml22> code includes a lot of functions dealing with single
+tags. Some editing functions return the edited documents but a lot of
+functions return single tags. They are devided into two classes.
+
+Those that may return a collection of tags return them as an indexed
+array of tag arrays. If you need the particular tags you have to take
+them out of that array first. This may be done by C<array_pop()>,
+C<array_shift()> or in a C<foreach> loop. You have to use C<array_pop()>
+even if these functions return only I<one> single tag. However, if
+there really is only one element in the returned array, i.e. the
+searching function got only one match, you may pass the returned array
+as is to the next searching or editing function you choose. The
+functions will do an C<array_pop()> for you. But beware if you're not
+shure to got only one single tag. If there are more than one in the
+array and you pass this array to another function as a single tag,
+only the I<last> of these elements will be recognized.
+
+However, all this must I<not> be done for functions that by definition
+return only one tag. Most of the time you may use functions of the
+second class. They seem to be more handy.
+
+As of version 0.3.0 a returned array of tag arrays--class one--will be
+considered to be a document fragment (see L</Document Fragments>). You
+can use L</xml22_is_tag>, L</xml22_is_fragment> or
+L</xml22_is_document> to check which type of array you are about to
+use.
+
+The members of the two classes are listed here:
+
+=over
+
+=item *
+
+functions returning arrays of tags aka document fragments
+
+L</xml22_get_by_regex>, L</xml22_get_all_descendants>,
+L</xml22_get_all_ancestors>, L</xml22_get_all_siblings>,
+L</xml22_get_all_of_name>, L</xml22_get_all_of_content>,
+L</xml22_copy_fragment>
+
+=item *
+
+functions returning single tags
+
+L</xml22_create_tag>, L</xml22_add_attribute>,
+L</xml22_delete_attribute>, L</xml22_get_root>, L</xml22_get_by_id>,
+L</xml22_get_first_child>, L</xml22_get_last_child>,
+L</xml22_get_next_sibling>, L</xml22_get_prev_sibling>
+
+=back
+
+=head2 Document Fragments
+
+A document fragment may be considered to be an XML document without the
+required C<<?xml> declaration at the start of it and without any
+DTD. If you created a fragment using L</xml22_create_fragment> you may
+treat it as if it were a document--with the one exception, that you
+cannot parse a fragment after you wrote it using
+L</xml22_write_document>. Of course, you will also fail if you try
+L</xml22_get_version> or L</xml22_get_doctype> with a fragment or if
+you hope to find a root node.
+
+Even only one tag may form a document fragment. The difference to a
+single tag is--internally--that a fragment is represented by an array
+of tag arrays while a single tag is represented by a plain tag
+array. You may use L</xml22_is_tag> or L</xml22_is_fragment> to
+distinguish between the two.
+
+Working with fragments may speed up your scripts a little.  For an
+example look at this little code snippet. It prints the fragment of
+all the tags belonging to the first child of the root element,
+including that child itself:
+
+ $doc     = xml22_parse( 'file.xml' );
+ $parent  = xml22_get_first_child( $doc, xml22_get_root( $doc ) );
+ $offset  = count( xml22_get_all_descendants( $doc, $parent ));
+ $frament = xml22_copy_fragment( $doc, $parent, $offset );
+ print xml22_write_document_str( $fragment, XML22_BEAUTIFY );
+
+=head2 Caching
+
+Sometimes your script may try to read the same XML file over and over
+again, e.g. in case of concatenated XML files, one pointing to some
+others. To prevent multiple parsing, the parsing function tries to
+cache the already parsed data and reads them back out of the cache if
+additional parsing is requested. This gives a significant increase of
+performance. The cache is written to the file system, so the data do
+not influence the available memory of the scripting engine.
+
+Exmaple:
+
+ $doc1 = xml22_parse( "file1.xml" ); // file1 is parsed and cached
+ // do something with $doc1
+ unset( $doc1 );
+ $doc2 = xml22_parse( "file2.xml" ); // file2 is parsed and cached
+ // do something with $doc2
+ unset( $doc2 );
+ $doc1 = xml22_parse( "file1.xml" ); // file1 is rebuild by the cache
+                                     // no parsing will happen
+ // do something with $doc1
+ unset( $doc1 );
+ 
+
+The caching mechanism checks if a document's file has been changed
+since it was parsed the last time, there should be no need to turn the
+caching off. In several cases, e.g. if the script has problems writing
+to the file system, you may want to turn it out nevertheless. This may
+be done for the whole runtime of the script using L</xml22_setup> or
+for every single call to L</xml22_parse> passing the argument
+C<$usecache> to that function.
+
+=head1 INSTALLATION
+
+First you have to download the latest release.
+
+Then type this sequence on your Unix/Linux box:
+
+  tar -xzf xml22-0_4_0.tar.gz
+  cd xml22-0_4_0
+  make install INSTALLDIR=<path>
+
+If you want to uninstall the files type:
+
+  make uninstall INSTALLDIR=<path>
+
+If your system is Windows you may use a tool like Winzip to unpack the
+archive, then copy all C<*.inc>-files of the F<./xml22> subdirectory to
+your prefered destination.
+
+To use B<xml22> in your own scripts, include the file F<xml22.inc>. If
+all you need is the parser, you may include only F<xml22-parser.inc>,
+which includes F<xml22-share.inc> via I<require_once()>. If you do not
+want to edit XML files, you may omit to include F<xml22-edit.inc>.
+
+
+=head1 FUNCTIONS
+
+=head2 Parse
+
+=head3 xml22_parse
+
+ array xml22_parse ( string $file, 
+                    [bool $usecache = XML22_CACHE] )
+
+This function parses the XML document as given by C<$file> and builds
+a multidimensional array representig this XML document. C<$file> may
+either be a valid path of the local file system or a single string
+containing well formed XML. An XML string is assumed if the C<$file>
+string starts with an C<<?xml>> declaration. So, if you pass a huge
+string with a misspelled opening, the string will be treated as a file
+name. The function returns the document array or I<false> on failure.
+
+Multiple declarations of the same entity or notation are
+discarded with an error message. Newlines inside of CDATA are
+replaced with spaces.
+
+As required by the XML specification, entities are
+resolved. Predefined entities are expanded by the parser and will be
+restored by L</xml22_write_document>. All other entities are
+resolved while parsing, but they are not encoded again when the
+document is written. You may use L</xml22_get_entity> to do this
+yourself if needed.
+
+The parser is non-validating, i.e. external entities are not resolved
+by default. You may set the setup option I<XML22_OPT_EXTERNALS> to a
+value of I<true> if you want external entities to be parsed (see
+L</xml22_setup>). Note that this in no way turns the parser to be
+validating and doesn_t include parsing of external DTDs! As stated for
+general entities, external entities are resolved but they cannot be
+restored by L</xml22_write_document>. If the external entity is given
+as an URI with a 'http://'-prefix, the parser tries to GET it.
+
+The C<$usecache> parameter switches the internal caching mechanism. A
+value of I<true>--which is the default--turns caching on, I<false> turns it
+off (see L</Caching>). Instead of I<true> and I<false> you may use
+XML22_CACHE or XML22_NOCACHE. If the cache encounters a problem, an
+error message will be stored (see L</xml22_error>) and the file will
+be parsed again. Passed XML strings will not be cached.
+
+The caching mechanism checks if a file has been changed since the last
+request for parsing. This is done reading the modification time of the
+file (using C<filemtime()>). If the file has been changed, it is
+parsed again.
+
+Note that caching still only works for the execution time of the
+script, not for the whole session. This may change in the future.
+
+=head3 xml22_register_pi_func
+
+  bool xml22_register_pi_func( string $target, string $funcname )
+
+The function may be used to register a callback function for a
+processing instruction. The function expects the case sensitive target
+name and the name of the callback function. B<xml22_register_pi_func>
+should be called I<before> L</xml22_parse> is called, otherwise
+nothing will happen. All processing instructions are passed to the
+callback function as they are recognized by the parser. If the
+parser reads a PI with no registered function the PI will be silently
+ignored but still stored in the document array. You may register as
+many callback functions as needed.
+
+If the callback function to register is not defined,
+B<xml22_register_pi_func> returns I<false> and sets an error
+message. I<true> is returned on success.
+
+The callback function will receive only one argument, the data of the
+processing instruction:
+
+  bool callback( string $data )
+
+=head3 xml22_register_char_entity_set
+
+ array xml22_register_char_entity_set( array $match = null, 
+                                       array $replace = null )
+
+By default, only predefined entities are encoded by
+L</xml22_write_document> and L</xml22_write_document_str>, though the
+parser resolves character entities as well. With this function it is
+possible to register a set of character entities to be encoded when a
+document is written. Two arguments should be passed, the array
+C<$match> with a number of perl regular expressions and the array
+C<$replace> build by the same number of character entities to replace
+the matches.
+
+=head2 Write
+
+=head3 xml22_write_document
+
+ bool xml22_write_document( array $document, 
+                            ressource $fd, [int $style = XML22_NORMALIZE] )
+
+This function will write the document array as build by
+L</xml22_parse> to the file descriptor C<$fd> as a well formed XML
+document. Predefined entities are encoded. General or external
+entities are not encoded. Tags without any content will be written in
+short notation, like C<<tag id="id"/>>. The function returns I<true> on
+success or I<false> on failure.
+
+The parameter C<$style> determines in which way the document is
+written. A value of XML22_NORMALIZE--which is the default--will cause
+the function to write the document in normalized form, i.e. without
+any spaces, tabs or newlines. You may set this variable to
+XML22_BEAUTIFY to write the document in human readable form.
+
+=head3 xml22_write_document_str
+
+ string xml22_write_document_str( array &$document 
+                                 [, int $style = XML22_NORMALIZE] )
+
+The function behaves the same like L</xml22_write_document> but is not
+writing to a file descriptor but to a string which is returned on
+success. I<false> will be returned on error.
+
+=head2 Search
+
+=head3 xml22_get_by_regex
+
+I<tag level>
+
+ array xml22_get_by_regex( array &$document, 
+                           array &$query, 
+                          [int $tokencount = XML22_GET_ALL, 
+                           int $startindex = 0, 
+                           int $offset     = 0] )
+
+This function is used to search the document array for specific tags
+or values. It returns an array of any number of tag arrays that match
+the query as given by C<$query>, I<false> on failure. 
+
+The parameter C<$tokencount> determines the number of found tags to be
+returned. If C<$tokencount> is set to 0, the function will return all
+tags found. If it is greater than 0, the function returns only the
+C<$tokencount> first. You may use XML22_GET_ALL or XML22_GET_FIRST
+instead of numerical arguments. The default is to return all found tags.
+
+There are some parameters to influence the performance of the search a
+little. If you specify the C<$startindex>, the search will start at
+the C<$startindex>th element of the array passed to as C<$document>.
+
+As another option C<$offset> may be set. Is it greater than 0, the
+search will end I<at> the C<($startindex + $offset)>th element. Is
+C<$offset == 0>--which is the default--the search will continue down
+to the end of the document array. An C<$offset> lesser than 0 will
+perform a backward search. C<$startindex> is then counted from the
+last element of C<$document>. If you need a backward search starting at
+the end of the document running up to the first element, you may set
+C<$startindex = 0> and C<$offset = -1>.
+
+The structure of a query is
+ 
+ $query = Array( 'field' => '/regexp/', 'field' => '/regexp/' ... )
+
+or
+
+ $query = Array( 'field' => '/regexp/', ..., 
+                'attribute' => array( 'name' => '/regexp/', ... ) )
+
+To examine the tags, you have to C<array_shift()> them off of the
+returned array even if there is only one tag found (see L</Functions
+Returning Tags>).
+
+Note: From version 0.0.2 to 0.2.95 the internal implementation of
+L</xml22_get_by_regex> changed a little. In particular the meaning of
+C<$startindex> and C<$offset> is different now.
+
+=head3 xml22_get_all_siblings
+
+I<XML level>, I<tag level>
+
+  array xml22_get_all_siblings( array &$document, array &$tag );
+
+This function returns an array of all elements of the same XML level
+and with the same parent node as C<$searchtag>, I<false> on failure. The
+result I<includes> C<$searchtag>.
+
+=head3 xml22_get_all_descendants
+
+I<XML level>, I<tag level>
+
+  array xml22_get_all_descendants( array &$document, array &$tag );
+
+This function returns an array of all subsequent elements of
+C<$searchtag>, I<false> on error. Not only the immediate children, but
+also the children's children and so forth are returned. If you need
+only a tag's immediate children, check out the 'children'-field of the
+tag.
+
+=head3 xml22_get_all_ancestors
+
+I<XML level>, I<tag level>
+
+  array xml22_get_all_ancestors( array &$document, array &$tag );
+
+This fnction returns an array of all related parents and grandparents
+of C<$searchtag> or I<false> on failure. All parent tags up to the root
+node of the XML document are returned. The immediate parent will be at
+the start of the returned array, the root node will be at the end. If
+you need I<only> the immediate parent of a tag use
+L/xml22_get_parent>.
+
+=head3 xml22_get_all_of_name
+
+I<XML level>
+
+  array xml22_get_all_of_name( array &$document, string $name, $mode = false )
+
+The function returns an array of all tags of name C<$name> that are
+found in the document array; I<false> will be returned if no tag was
+found or if an error occured. The argument C<$name> should be a plain
+string, no regular expression.
+
+As of version 0.3.2 you may add an argument C<$mode> to the
+function. If it is set to I<XML22_START_ROOT> the search will start at
+the root node of the document (which may be a little faster).
+
+=head3 xml22_get_all_of_content
+
+I<XML level>
+
+  array xml22_get_all_of_content( array &$document, string $regex, $mode = false )
+
+This function returns an array of all tags of which the 'content'
+field matches the perl compatible regular expression given by
+C<$regex>. The function will retun I<false> if no tag was found or on
+failure.
+
+As of version 0.3.2 you may add an argument C<$mode> to the
+function. If it is set to I<XML22_START_ROOT> the search will start at
+the root node of the document (which may be a little faster).
+
+=head3 xml22_get_version
+
+I<XML level>
+
+  array xml22_get_version( array &$document )
+
+This function returns an array containing information about the XML
+version of the document or I<false> on failure. If the version string
+misses information, i.e. the C<encoding> attribute, the returned array
+misses this field too.
+
+The array structure looks like this:
+
+  Array( 'version'    => <string>,  // "1.0"
+         'standalone' => <string>,  // "no" | "yes"
+         'encoding'   => <string> ) // "US-ASCII" or whatever
+
+=head3 xml22_get_doctype
+
+I<XML level>
+
+  array xml22_get_doctype( array &$document )
+
+The function returns an array containing information about the XML
+doctype of the document or I<false> on failure. If the doctype string
+misses information, i.e. the name in case of a SYSTEM DTD, the
+returned array misses this field too.
+
+  Array( 'root'       => <string>,  // the name of the root element
+         'SYSTEM'     => <string>,  // the location of the SYSTEM DTD
+         'name'       => <string>,  // the name of the PUBLIC DTD
+         'PUBLIC'     => <string> ) // the location of the PUBLIC DTD
+
+=head3 xml22_get_root
+
+I<XML level>
+
+  array xml22_get_root( array &$document )
+
+The function returns one array representig the root element of the
+document or I<false> on failure.
+
+=head3 xml22_has_children
+
+I<XML level>
+
+  int xml22_has_children( array &$tag )
+
+The function returns the number of children if C<$tag> has any or 0 if
+not, I<false> on error.
+
+=head3 xml22_get_first_child
+
+I<XML level>
+
+  array xml22_get_first_child( array &$document, array &$parent )
+
+Returns the first immediate child of C<$parent>, I<false> if no child was
+found or on error.
+
+=head3 xml22_get_last_child
+
+I<XML level>
+
+  array xml22_get_last_child( array &$document, array &$parent )
+
+Returns the last immediate child of C<$parent>, I<false> if no child was
+found or on error.
+
+=head3 xml22_get_next_sibling
+
+I<XML level>
+
+  array xml22_get_next_sibling( array &$document, array &$tag )
+
+Returns the successor tag of the same level in the XML tree as
+C<$tag>, I<false> on failure or if no match was found.
+
+=head3 xml22_get_prev_sibling
+
+I<XML level>
+
+  array xml22_get_prev_sibling( array &$document, array &$tag )
+
+Returns the ancestor tag of the same level in the XML tree as C<$tag>,
+I<false> on failure or if no match was found.
+
+=head3 xml22_get_parent
+
+I<XML level>
+
+  array xml22_get_parent( array &$document, array &$tag )
+
+The function returns the parent tag of C<$tag>, I<false> on failure. This
+returns the parent in respect to the XML tree, not in respect to the
+document array, i.e. you cannot get a parent of the root tag.
+
+=head3 xml22_get_by_id
+
+I<XML level>
+
+  array xml22_get_by_id( array &$document, string $id, 
+                        [, string $idname = ""] )
+
+The function returns one array representing the tag which has an
+attribute of type ID with the value C<$id>. If C<$idname> is given,
+the attribute of C<$idname> is searched for the given
+C<$id>. Otherwise an attribute name that consists of or ends with the
+strings 'id' or 'ID' is searched ( regex: C</.*(id|ID)/> ). The
+function returns I<false> if no match was found or an error occured.
+
+=head3 xml22_get_name
+
+I<XML level>, I<tag level>
+
+  string xml22_get_name( array &$tag )
+
+The function returns the name of C<$tag> or I<false> if no name is
+set. This may be the case for comments, processing instructions or the
+XML version string.
+
+=head3 xml22_get_content
+
+I<XML level>, I<tag level>
+
+  string xml22_get_content( array &$tag, 
+                           [ bool $plain = true, string $rplc = '' ] )
+
+This function returns the string of the 'content' field of the tag
+C<$tag> or I<false> on failure. As of version 0.3.0 you may add the
+parameter C<$plain>. If C<$plain> is set to I<false>, all '<![CDATA[' and
+']]>' strings will be deleted in the returned string, so you will get
+the content as it is meant rather than as it is stored. By default,
+both strings are replaced by the empty string. You may pass a third
+parameter C<$rplc> to the function which changes the replacement
+string.
+
+=head3 xml22_get_attribute
+
+I<XML level>
+
+ string xml22_get_attribute( array &$tag, string $attrname )
+
+Get a string representing the value of the attribute C<$attrname> of
+the tag C<$tag>. The function returns I<false> on failure.
+
+=head3 xml22_get_entity
+
+I<XML level>
+
+ mixed xml22_get_entity( string &$doc [, string $name = ''] )
+
+By default, the function returns an array containing pairs of entity
+names and definitions.
+
+ Array( [&name;] => "definition" )
+
+If C<$name> is specified, a string representing the definition of the
+entity given by C<$name> is returned. A value of false will be
+returned on failure.
+
+The entity must be defined by the I<internal> DTD section of the
+document (see L</RESTRICTIONS>).
+
+=head3 xml22_get_notation
+
+I<XML level>
+
+ mixed xml22_get_notation( string &$doc [, string $name = ''] )
+
+By default, the function returns an array containing pairs of notation
+names and definitions.
+
+ Array( [name] => "definition" )
+
+If C<$name> is specified, a string representing the definition of the
+notation given by C<$name> is returned. A value of false will be
+returned on failure.
+
+The notation must be defined by the I<internal> DTD section of the
+document (see L</RESTRICTIONS>).
+
+=head3 xml22_is_tag
+
+I<tag level>
+
+ bool xml22_is_tag( array &$search );
+
+Return I<true> if C<$search> is a tag array, I<false> otherwise.
+
+=head3 xml22_is_fragment
+
+I<tag level>
+
+ bool xml22_is_fragment( array &$search );
+
+Return I<true> if C<$search> is an array representing a document
+fragment, I<false> otherwise.
+
+=head3 xml22_is_document
+
+I<tag level>
+
+ bool xml22_is_document( array &$search );
+
+Return I<true> if C<$search> is a document array, I<false> otherwise.
+
+=head3 xml22_is_below_root
+
+I<XML level>
+
+  int xml22_is_below_root( array &$tag )
+
+The function returns I<1> if C<$tag> is located below the root node of
+the document it belongs to, I<0> if it is the root itself or I<-1> if
+it is located above the root node. The returned value will be I<false> if
+C<$tag> is not valid (check for identity with C<===>, not just
+for equality).
+
+=head2 Edit
+
+=head3 xml22_create_document
+
+I<XML level>
+
+  array xml22_create_document( string $version 
+                              [, string $standalone = "no", 
+                                 string $encoding = "" ] )
+
+The function returns an array representing an empty XML document. The
+array actually consists of only one element containing the XML version
+string. The XML version will be set as given by C<$version>. By
+default, the function creates a document with an external DTD,
+i.e. the attribute C<standalone="no">. You may change this to "yes" by
+the argument C<$standalone>. In addition you can specify the encoding
+string with C<$encoding>.
+
+=head3 xml22_create_tag
+
+I<tag level>
+
+ array xml22_create_tag( string $name, [string $content = '',
+                                        array $template = false,
+                                        bool  $mode = XML22_BYSIBLING] )
+
+Create a tag array with 'tag'-field set to C<$name>. If C<$content> is
+given, it will be written to a 'content'-field. The fields 'index',
+'parindex' and 'level' will be left I<false> or will be filled with
+meaningful values if a C<$template> tag array is given. The C<$mode>
+marks the C<$template> as a sibling or the parent of the tag to
+create. It may be set to XML22_BYSIBLING or XML22_BYPARENT. The
+created tag will have its 'index'-field set to the immediate
+descendant of C<$template> in respect to the document array. The
+function returns the created tag array or I<false> on failure.
+
+The created tag does not appear in the document until you add it using
+L</xml22_add_child>, L</xml22_add_sibling> or L</xml22_insert_tag>.
+
+=head3 xml22_create_fragment
+
+I<XML level>, I<tag level>
+
+  array xml22_create_fragment( array $firsttag )
+
+The function returns an array representing a document fragment. The
+fragment will contain only one tag, C<$firsttag>. The XML tree level
+of C<$firsttag> will be reset to 0. If the returned value equals
+I<false>, an error occured.
+
+=head3 xml22_add_attribute
+
+I<XML level>
+
+ array xml22_add_attribute( array $tag, string $name, string $value )
+
+This function adds an attribute C<$name> with a value of C<$value> to
+the tag given as C<$tag>. If an attribute with name C<$name> already
+exists, its value will be updated to C<$value>. The function returns
+the edited tag array or I<false> on failure.
+
+=head3 xml22_delete_attribute
+
+I<XML level>
+
+ array xml22_delete_attribute( array $tag, string $name )
+
+This function deletes an attribute C<$name> from the tag given as
+C<$tag>. If no attribute remains after this operation, the
+'attribute'-field of C<$tag> will also be deleted. The function returns
+the edited tag array or I<false> on failure.
+
+=head3 xml22_add_content
+
+I<XML level>, I<tag level>
+
+  array xml22_add_content( array $tag, string $content
+                          [, bool $action = XML22_OVWRT, 
+                             bool $cdata = false ] 
+
+By default, the function inserts the string C<$content> to the
+'content' field of the tag C<$tag>, i.e. any content that already
+exists will be overwritten. The function concats the string to the
+'content' field if the parameter C<$action> is set to XML22_CAT.
+
+The 'content' field will be written as an explicit C<< <![CDATA[]]> >>
+declaration if the parameter C<$cdata> is set to XML22_CDATA. Then the
+I<whole> content will be enclosed in a single
+C<< <![CDATA[]]> >>--regardless if you set XML22_CAT--and all C<< <![CDATA[]]> >>
+that already exist will disappear. If you need mixed C<< <![CDATA]]> >> and
+normal XML you should I<not> use XML22_CDATA. You better specify the
+different C<< <![CDATA[]]> >> in the C<$content> string one by one.
+
+The function returns the edited tag or I<false> on failure.
+
+=head3 xml22_delete_tag
+
+I<XML level>, I<tag level>
+
+  array xml22_delete_tag( array $document, array $tag 
+                         [, bool $descend = false ] )
+
+Delete the given tag. If you set the optional parameter C<$descend> to
+I<true>, all descendants of the tag will be deleted too. Instead of I<true>
+you may use XML22_DEL_CHILDREN. The function returns the edited
+document array, I<false> on failure. 
+
+Note that deleting a tag setting XML22_DEL_CHILDREN is not that much
+slower than deleting just a single tag.
+
+=head3 xml22_insert_tag
+
+I<XML level>, I<tag level>
+
+  array xml22_insert_tag( array $document, array $tag 
+                           [, mixed $ancestor = 0] )
+
+Insert the given tag at the position below C<$ancestor>. The
+C<$ancestor> may be a tag array or an integer representing the 'index'
+field of the ancestor tag. If C<$ancestor> is omitted, the ancestor
+element is determined by the 'index' field of the tag which should be
+greater than 0. C<$tag> will be updated and may be reused. The
+function returns the edited document array or I<false> on failure.
+
+=head3 xml22_replace_tag
+
+I<XML level>, I<tag level>
+
+ array xml22_replace_tag( array $document, array $oldtag, array $newtag )
+
+Replace C<$oldtag> with C<$newtag> and return the edited C<$document>,
+I<false> on failure.
+
+This function may also be used to simply change a tag. It is much
+faster to use this than to first deleting a tag and after that
+inserting a new one at the same place. C<$newtag> will be updated and
+may be reused.
+
+=head3 xml22_move_tag
+
+I<XML level>, I<tag level>
+
+ array xml22_move_tag( array $document, array $tag, mixed $newancestor )
+
+This function moves C<$tag> from its current position to the position
+below C<$newancestor>. The argument C<$newancestor> may be a tag array
+or an integer representing the 'index' field of the newancestor
+tag. C<$tag> will be updated and may be reused. The function returns
+the edited document or I<false> on failure.
+
+Note: Currently this function is implemented by simply calling
+L</xml22_delete_tag> followed by an L</xml22_insert_tag>. This may
+change in the future.
+
+=head3 xml22_copy_fragment
+
+I<XML level>
+
+ array xml22_copy_fragment( array &$document, array $start, int $offset )
+
+This function returns an array representing a copy of the document
+fragment starting with tag C<$start> and ending C<$offset> tags below
+C<$start>. The internal indices of the array are normalized to the
+base of 0. The function returns I<false> on error.
+
+=head3 xml22_delete_fragment
+
+I<XML level>
+
+ array xml22_delete_fragment( array $document, array $start, int $offset )
+
+The function deletes the document fragment starting at the tag
+C<$start> and ending C<$offset> tags below C<$start>. If C<$offset>
+exceeds the document, all until the end of the document will be
+deleted. The edited document array is returned or I<false> on error.
+
+=head3 xml22_insert_fragment
+
+I<XML level>
+
+ array xml22_insert_fragment( array $document, array $fragment, 
+                              array &$ancestor )
+
+The function will insert the document fragment C<$fragment> below the
+tag given by C<$ancestor>. If C<$ancestor> has any descendants, the
+fragment will be inserted below the last of its descendants. The
+edited document array is returned or I<false> on failure.
+
+=head3 xml22_replace_fragment
+
+I<XML level>
+
+ array xml22_replace_fragment( array $document, array $fragment,
+                               array $start )
+
+The function replaces in C<$document> a document fragment of length
+C<count($fragment)>, beginning at C<$starttag> with the document
+fragment given with C<$fragment>. The edited document is returned or
+I<false> on failure.
+
+Note: The function does I<not> check if the logical--or XML--structure
+of the fragment to replace is equivalent to the structure of the
+replacement.
+
+=head3 xml22_move_fragment
+
+I<XML level>
+
+ array xml22_move_fragment( array &$document, array $start, 
+                            int $offset, array $newancestor )
+
+This function will wove the document fragment that starts at tag
+C<$start> and ends at C<$ofset> tags below C<$start> below
+C<$newancestor>. If C<$newancestor> has any descendants, the fragment
+will be inserted below the last of its descendants. The edited
+document array is returned or I<false> on failure.
+
+=head3 xml22_add_doctype
+
+I<XML level>
+
+  array xml22_add_doctype( array $document, array $doctype )
+
+A proper doctype declaration as specified by the array C<$doctype>
+will be inserted into the document C<$document> at the position
+immediately below the XML version string. If a doctype declaration
+already exists it will be overwritten. The function returns the edited
+document or I<false> on failure.
+
+The C<$doctype> array can have two variants as described here:
+
+  Array( 'root'   => <string>,  // name of the root element
+         'SYSTEM' => <string> ) // location of the SYSTEM DTD
+
+  Array( 'root'   => <string>,  // name of the root element
+         'name'   => <string>,  // name of the PUBLIC DTD
+         'PUBLIC' => <string> ) // location of the PUBLIC DTD
+
+=head3 xml22_add_root
+
+I<XML level>
+
+  array array xml22_add_root( array $document, string $name, 
+                              string $namespace )
+
+The function adds a root tag to the document array C<$document>. The
+name of the tag is given by C<$name>. The parameter C<$namespace> will
+be used to set an attribute 'xmlns' of the root tag. If a root tag
+already exists in the document it will be overwridden.
+
+The function returns the edited document or I<false> on failure.
+
+=head3 xml22_add_child
+
+I<XML level>
+
+  array xml22_add_child( array $document, array $tag, array $parent )
+
+The function adds the tag C<$tag> to the document array C<$document>,
+assuming that C<$tag> is a child of C<$parent>. If the parent already
+has any children, the new tag will be added below the last of these
+children or below the last of the subsequent children. C<$tag> will be
+updated and may be reused. The edited document array is returned or
+I<false> on failure.
+
+=head3 xml22_add_sibling
+
+I<XML level>
+
+  array xml22_add_sibling( array $document, array $tag,  
+                           array $ancestor )
+
+This function adds the tag C<$tag> to the document array C<$document>,
+assuming that C<$tag> is a sibling of C<$ancestor>. The new tag will
+be added immediately below the ancestor or below the last of the
+ancestors children if there are any. C<$tag> will be updated and may
+be reused. The edited document array is returend or I<false> on failure.
+
+=head3 xml22_add_comment
+
+I<XML level>
+
+  array xml22_add_comment( array $document, string $comment, 
+                           mixed $ancestor )
+
+The function adds a comment as given by C<$comment> to the document
+C<$document> at the position below C<$ancestor>. The argument
+C<$ancestor> may be a tag array or an integer representing the 'index'
+field of the ancestor tag. The function returns the edited document or
+I<false> on failure.
+
+=head2 Miscellaneous
+
+=head3 xml22_setup
+
+  bool xml22_setup( array &$options )
+
+You may use this function to customize the behavior of the
+B<xml22> code. It is intended to set some values for the whole runtime
+of the script. Once an options is set via L</xml22_setup> it cannot
+be changed later on. For instance, if you want to switch caching off
+and on several times, don't use this function but the paramater
+C<$usecache> of the L</xml22_parse> function.
+
+The array C<$options> consists of pairs of option names
+and values:
+
+  $options = Array( 'XML22_OPT_<name>' => <value>, ... )
+
+Possible options and their values are:
+
+=over
+
+=item *
+
+XML22_OPT_CACHE
+
+Switch caching on or off (see L</xml22_parse>).
+
+  XML22_OPT_CACHE = XML22_CACHE | XML22_NOCACHE
+
+=item *
+
+XML22_OPT_EXTERNALS
+
+Switch parsing of external entities on and off (see L</xml22_parse>).
+
+  XML22_OPT_EXTERNALS = true | false
+
+=item *
+
+XML22_OPT_WRITESTYLE
+
+Set the style for writing a document (see L</xml22_write_document>).
+
+  XML22_OPT_WRITESTYLE = XML22_NORMALIZE | XML22_BEAUTIFY
+
+=item *
+
+XML22_OPT_TABSIZE
+
+Set the tabsize in characters for indentation of the lines if the
+document is written in style XML22_BEAUTIFY (see
+L</xml22_write_document>). This value defaults to 3.
+
+  XML22_OPT_TABSIZE = <int>
+
+=back
+
+An error will be reported and the function will return I<false> if any
+option doesn't match the range of possible values. Unknown options
+will be silently ignored.
+
+The function should be called only once and I<before> you call any
+other function of B<xml22>. If you try to call it twice, the function
+will return I<false> and an error will be set. You may check this via
+L</xml22_error>. If you run it once but too late, no error will be
+reported but your code may not behave as expected.
+
+=head3 xml22_error
+
+ array xml22_error()
+
+Returns an array of all error messages. The last error is additionaly
+written to a field 'last' of the returned array. Every call to
+L</xml22_error> will unset this field. You may check if this field is
+set to check if an error occured during the last function call.
+
+=head1 FAQ
+
+=head2 Why doesn't PHP find the include files?
+
+Possibly you work with a different directory structure as stated in
+the L</Installation> section. If this is what you want, you have to
+adjust the C<require_once> statements at the start of the B<xml22>
+include files by your own, or--simple--the include path via
+I<ini_set()>.
+
+=head2 Why does my parsing always fail?
+
+If you pass a string, not a filename to L</xml22_parse>, remember that
+it must contain I<well formed> XML, i.e. the string has to start with
+at least this statement: C<<?xml version="1.0"?>>.
+
+=head2 When I parse an XML file, the script seems to wait forever. Why?
+
+Possibly the parser tries to read an external entity via HTTP GET, but
+the network or the server is unreachable.
+
+=head2 Why can't I find any 'tag' field in the matched element?
+
+If you work with the returned data of searching functions that may
+return more than one match, remember that the returned array is not a
+plain tag array but an array of tag arrays. If you need the tag array
+by itself, you have to apply C<array_shift()> or C<array_pop()> first,
+even if there is only one match returned (see L</Functions Returning
+Tags>).
+
+Another reason may be that the element represents an XML comment, the
+C<<?xml> declaration or a processing instruction.
+
+Usually you don't need to touch the tag array directly. Use
+L</xml22_get_name> or L</xml22_get_content>.
+
+=head2 Why does my search always fail?
+
+Check the regular expressions. Are there valid delimiters
+(e.g. "/^[fF]ine [rR]egex$/"--note the slashes)? Did you use
+variables inside the regular expressions, but single instead of double
+quotes (wrong: '/^$wonder$/' right: "/^$wonder$/" )?
+
+If you use L</xml22_get_by_regex> search for attributes by an
+additional array I<inside> the array that represents the query.
+
+As of version 0.0.2 you may pass tags to the searching functions
+either by an array as it is returned by L</xml22_get_by_regex> or you
+may--better--search by the tag array itself as it results from an
+C<array_pop()> of the latter. This has been introduced for robustness
+but you are on the safe side if you do the C<array_pop()> by yourself
+(see L</Functions Returning Tags>).
+
+As of version 0.2.95 you may need L</xml22_get_by_regex> only in some
+very special cases. Now B<xml22> contains a lot of specialized
+searching functions (see L</Search>).
+
+=head2 Why does my editing always fail?
+
+Especially if you try to insert or to replace a tag ensure that the
+given tag arrays include at least the fields 'index', 'level' and
+'parindex' i.e. you must tell the functions where to place the
+tags. The fields must be set (defined), they do not necessarily have
+to have a true value--though you should fill one in to prevent
+confusion.
+
+Best practice is to get a sibling first and work like this:
+
+ $search  = array('tag'     => '/name/',
+                  'content' => '/John Silver/');
+ $sibling = array_shift( xml22_get_by_regex( $doc, 
+                         $search, XML22_GET_FIRST ) );
+ $new = xml22_create_tag( 'position', 'chairman', $sibling, 
+                          XML22_BYSIBLING );
+ $doc = xml22_insert_tag( $doc, $new );
+
+This may be done similar for a given parent using XML22_BYPARENT. Much
+better is to use L</xml22_add_sibling> or L</xml22_add_child>.
+
+=head2 When I delete a parent, it's children remaining. What now?
+
+You should not delete a parent before you have deleted all of it's
+children. 
+
+As of version 0.3.0 all you have to do is to add an additional
+parameter to L</xml22_delete_tag>:
+
+ $doc = xml22_delete_tag( $doc, $tag, XML22_DEL_CHILDREN );
+
+The old way to delete root safely looks like this:
+
+ function my_delete_fragment( $doc, $parent ) {
+   $descarray = array_reverse(xml22_get_all_descendants($doc, $parent));
+   foreach( $descarray as $child ) {
+     if ( xml22_get_first_child( $doc, $child ) ) { 
+       $doc = my_delete_fragment( $doc, $child );
+     }
+     $doc = xml22_delete_tag( $doc, $child );
+   }
+   $doc = xml22_delete_tag( $doc, $parent );
+   return $doc;
+ }
+
+ $doc  = xml22_parse('myfile.xml');
+ $root = xml22_get_root( $doc );
+ $doc  = my_delete_fragment( $doc, $root );
+
+
+=head2 What means "Cannot pass parameter x by reference"?
+
+As of version 0.2.95 the internal interface of the searching functions
+changed to improve performance. The arrays are no longer passed by
+value. Instead they are passed by reference. That means that you
+cannot write your searching arrays for L</xml22_get_by_regex> inlined
+anymore. If you wrote:
+
+  $tag = xml22_get_by_regex( $doc, array('tag' => 'node' ) );
+
+you must write now:
+
+  $search = array('tag' => 'node' );
+  $tag    = xml22_get_by_regex( $doc, $search );
+
+Remember that you usually don't need L</xml22_get_by_regex>. There
+are a lot of specialised searching functions available now.
+
+=head2 Is there any way to mix (X)HTML into my XML?
+
+Namespaces are not supported.
+
+Use an explicit CDATA declaration instead, like this:
+
+ <node><![CDATA[<b>A <i>very important</i> notice.</b>]]></node>
+
+This will result in an array element like this:
+
+ Array (
+   [tag] => node,
+   [...]
+   [content] => <b>A <i>very important</i> notice.</b>
+ )
+
+If you use L</xml22_add_content> you can instruct the function to do
+this for you.
+
+=head2 Does caching work persistent?
+
+Not yet. It works only for the runtime of the script.
+
+=head2 What about DOM?
+
+This code is absolutely I<not> conforming to DOM, though it is aimed
+to provide a similar functionality. If you have support of DOM
+compiled into your PHP module (support of I<libxml2>), use that. This
+code may only be used if you have I<no> DOM support for your PHP
+module.
+
+Writing a class conforming to the specification of DOM Core Level 1
+completely in PHP may become another story--though it may seem to be
+useless. As of PHP4 the scripting engine has the possibility to
+support DOM if it is compiled with support for
+I<libxml2>. Unfortunately, not every user has control over the PHP
+module and the libraries installed on the system where (s)he runs
+her/his code. DOM support in PHP is still marked as "experimental" and
+some providers do not want to provide experimental stuff due to
+security reasons.
+
+Last but not least, not everybody likes OOP. This one is for those who
+think of the old times as good times ;)
+
+=head1 REQUIREMENTS 
+
+PHP >= 4.0.0, XML support (libexpat), Perl compatible regular
+expressions.
+
+
+=head1 RESTRICTIONS
+
+Do not use these functions for I<very> huge XML files. The whole file
+will be read into memory at once and the multidimensional array build
+up by the parsing function will consume obviously I<more> memory than
+the plain file does. You better split your files into pieces and
+handle them using the caching mechanism (see L</Caching>).
+
+There are some restrictions to the parser. Currently not supported
+features are: namespaces.
+
+External DTDs are not parsed, i.e. the parser is non-validating. This
+is a restriction of the XML parser of PHP4 which is actually an
+interface to C<libexpat>.
+
+Currently there is no unicode support.
+
+The code may work for correctly nested data. It may I<not> be useful
+for data including the XML data type ANY i.e. not for tags that are
+embedded in CDATA (you cannot use this code to process (X)HTML). This
+may change in the future.
+
+=head1 TO DO
+
+=over
+
+=item *
+
+change structure of the array to improve performance and compatibility
+to standards
+
+=item *
+
+unicode support
+
+=item *
+
+optimize performance of editing functions
+
+=item *
+
+enable persistent caching
+
+=back
+
+=head1 CHANGELOG
+
+=head2 0.4.0
+
+=over
+
+=item *
+
+New array structure. The parser doesn't change the document
+anymore.
+
+=item *
+
+Fixed bug in L</xml22_get_content>.
+
+=back
+
+=head2 0.3.4
+
+=over
+
+=item *
+
+Function L</xml22_has_children> returns the number of children now
+(added by request).
+
+=back
+
+=head2 0.3.3
+
+=over
+
+=item *
+
+Some bugs fixed.
+
+=back
+
+=head2 0.3.2
+
+=over
+
+=item *
+
+Extended functionality of L</xml22_get_all_of_name> and
+L</xml22_get_all_of_content>.
+
+=item *
+
+Some optimizations, e.g. L</xml22_get_by_regex> runs about two times
+faster now which effects a number of other functions too.
+
+=item *
+
+Fixed bug in L</xml22_get_all_of_name>.
+
+=item *
+
+Test scripts may be used at command line now.
+
+=item *
+
+Fixed bug in the profiling function of test scripts.
+
+=item *
+
+Makefiles
+
+=back
+
+=head2 0.3.1
+
+=over
+
+=item *
+
+New function L</xml22_register_char_entity_set>.
+
+=item *
+
+Minor bugfixes.
+
+=back
+
+=head2 0.3.0
+
+=over
+
+=item *
+
+The parser accepts a filename as well as a single string containing
+well formed XML.
+
+=item *
+
+General Entities are resolved now. The parser may be configured to
+parse external entities as well (see L</xml22_setup>).
+
+=item *
+
+Support for processing instructions, see L</xml22_register_pi_func>.
+
+=item *
+
+A new function L</xml22_write_document_str> is introduced to write an
+XML document to a string.
+
+=item *
+
+L</xml22_delete_tag> is now able to delete a tag and all of its
+descendants in one task.
+
+=item *
+
+Support for document fragments.
+
+=item *
+
+Some optimizations in pattern matching.
+
+=item *
+
+For better maintanance, the include file is splitted into five
+pieces. You still include simply F<xml22.inc> that manages the
+additional includes for you. See L</Installation>.
+
+=back
+
+=head2 0.2.96
+
+=over
+
+=item *
+
+Now L</xml22_write_document> encodes predefined entities.
+
+=back
+
+=head2 0.2.95
+
+=over
+
+=item *
+
+Now the parser recognizes entities as well as C<<!ENTITY> and
+C<<!NOTATION> definitions or processing instructions.
+
+=item *
+
+Fixed some hidden bugs in the parser.
+
+=item *
+
+Added several functions to get particular nodes or information about
+nodes.
+
+=item *
+
+Added several new editing functions.
+
+=item *
+
+Added L</xml22_setup> function.
+
+=item *
+
+Caching now checks if the cached document's file has been changed.
+
+=item *
+
+It should be safe now to pass the results of searching functions that
+return arrays of tags back to those functions. To make this possible
+some changes to L</xml22_get_by_regex> were necessary. The meaning of
+C<$startindex> and C<$offset> changed a little.
+
+=item *
+
+Changed pass-by-value to pass-by-reference internally where it makes
+sense. This influences the API at only one point (see L</What means
+"Cannot pass parameter x by reference"?>).
+
+=item *
+
+The tests run now with the (extended) W3C 'staff.xml'.
+
+=item *
+
+A new and more common version numbering. The code is still considered
+developmental, so the major version number is 0. Now the minor number
+marks the level of development and the third number marks the bugfix
+level.
+
+=back
+
+=head2 0.0.2
+
+=over
+
+=item *
+
+Added editing functions for single tags.
+
+=item *
+
+Added function to write a document.
+
+=item *
+
+Added internal checks to improve robustness.
+
+=item *
+
+Changed the structure of the document array by adding a new element
+'index'.
+
+=item *
+
+Enhanced error reporting. I</xml22_parse_error> is obsolete. Now
+use L</xml22_error> which returns an array containing all errors.
+
+=item *
+
+Added basic support for XML comments.
+
+=back
+
+=head2 0.0.1
+
+=over
+
+=item *
+
+Parsing of a document into a multidimensional array.
+
+=item *
+
+Basic searching functions.
+
+=back
+
+=head1 LICENSE 
+
+Copyright (C) 2003 Ingo Schramm
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+USA
+
+=head1 REPORTING BUGS
+
+If you want to report bugs or if you have any suggestions feel free to
+send a message to the author. You will find the current e-mail address
+at http://www.ister.org. Please add to your report the version of
+B<xml22> you use, the version of your PHP module and the type of
+system it runs on.
+
+=head1 AUTHOR  
+
+Ingo Schramm
+
+http://code.ister.org
+
+=cut
+
+
