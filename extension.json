@@ -1,0 +1,39 @@
+{
+	"name": "PubmedEx",
+	"version": "1.0.0",
+	"author": [
+		"Yoshihiro OKUMURA",
+		"Andreas Bohne-Lang(Original)"
+	],
+	"url": "https://github.com/neuroinformatics/mediawiki-extension-PubmedEx",
+	"descriptionmsg": "pubmedex-desc",
+	"license-name": "GPL-2.0-or-later",
+	"requires": {
+		"MediaWiki": ">= 1.31.0"
+	},
+	"type": "parserhook",
+	"config": {
+		"PubmedApiKey": "",
+		"PubmedCache": "",
+		"PubmedCacheExpires": 604800,
+		"PubmedProxyHost": "",
+		"PubmedProxyPort": 8080,
+		"PubmedProxyUser": "",
+		"PubmedProxyPass": "",
+		"PubmedLimit": 20,
+		"PubmedOffset": 0,
+		"PubmedTemplateFile": "default.php"
+	},
+	"MessagesDirs": {
+		"PubmedEx": [
+			"i18n"
+		]
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\PubmedEx\\": "includes/"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": "MediaWiki\\Extension\\PubmedEx\\Hooks::onParserFirstCallInit"
+	},
+	"manifest_version": 1
+}

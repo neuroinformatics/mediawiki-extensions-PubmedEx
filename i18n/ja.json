@@ -1,0 +1,8 @@
+{
+        "@metadata": {
+                "authors": [
+                        "Yoshihiro OKUMURA"
+                ]
+        },
+        "pubmedex-desc": "[https://www.ncbi.nlm.nih.gov/pubmed/ PubMed]から文献情報を取得し表示するタグ <code>&lt;pubmed&gt; ... &lt;/pubmed&gt;</code> を提供する"
+}

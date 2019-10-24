@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<employee id="EMP0006">
-  <employeeId>EMP0006</employeeId>
-  <name>Maggie Hunter</name>
-  <position>Accountant</position>           
-  <salary>57,000</salary>
-  <gender>Female</gender>
-  <address domestic="Yes">119 South Ave. Dallas, Texas 98551</address>
-</employee>
