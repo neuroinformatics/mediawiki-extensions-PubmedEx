@@ -5,7 +5,7 @@
 		"Yoshihiro OKUMURA",
 		"Andreas Bohne-Lang(Original)"
 	],
-	"url": "https://github.com/neuroinformatics/mediawiki-extension-PubmedEx",
+	"url": "https://github.com/neuroinformatics/mediawiki-extensions-PubmedEx",
 	"descriptionmsg": "pubmedex-desc",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {

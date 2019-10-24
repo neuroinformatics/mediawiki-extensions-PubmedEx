@@ -7,7 +7,7 @@ class Hooks
     /**
      * register tag renderer callbacks.
      *
-     * @param Parser $parser
+     * @param \Parser $parser
      */
     public static function onParserFirstCallInit(\Parser $parser)
     {

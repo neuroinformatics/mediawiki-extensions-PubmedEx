@@ -261,7 +261,7 @@ class PubmedBookArticle extends AbstractArticle
     /**
      * get pubmed central id.
      *
-     * @see AbstractArticle::getPmcid()
+     * @see AbstractArticle::getPmc()
      *
      * @return string
      */

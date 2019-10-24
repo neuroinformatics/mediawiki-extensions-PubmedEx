@@ -1,6 +1,6 @@
 # MediaWiki Extension PubmedEx
 
-This extension provides `&lt;pubmed&gt;...&lt;/pubmed&gt;` tags to show article information fetched from [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/).
+This extension provides `<pubmed>...</pubmed>` tags to show article information fetched from [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/).
 
 This is forked from [Pubmed Extension](https://www.mediawiki.org/wiki/Extension:Pubmed) version 2.0 (2018-10-31).
 
@@ -68,7 +68,7 @@ wfLoadExtension("PubmedEx");
 ## Changes from the original version
 * Reimplemented all sources.
   * new E-utilities client to support API key.
-  * new pubmed xml parser to support PubmedBookArticle data.
+  * new PubMed xml parser to support PubmedBookArticle data.
   * new cache system to store each pubmed responses and parsed article data.
   * new template system for more flexible format support.
   * modern MediaWiki extention framework.

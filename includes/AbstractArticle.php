@@ -158,7 +158,10 @@ abstract class AbstractArticle
     /**
      * render authors.
      *
-     * @param array $Author
+     * @param array  $Author
+     * @param int    $type
+     * @param string $lastsep
+     * @param int    $shownum
      *
      * @return string
      */
