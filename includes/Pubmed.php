@@ -11,9 +11,9 @@ class Pubmed
     /**
      * eutil instance.
      *
-     * @var EntrezEutil
+     * @var EntrezEutils
      */
-    protected $mEutil;
+    protected $mEutils;
 
     /**
      * cache instance.
@@ -29,7 +29,7 @@ class Pubmed
      */
     public function __construct($apiKey = '')
     {
-        $this->mEutil = new EntrezEutil($apiKey);
+        $this->mEutils = new EntrezEutils($apiKey);
     }
 
     /**
@@ -55,7 +55,7 @@ class Pubmed
      **/
     public function setProxy($host, $port = 3128, $user = '', $pass = '')
     {
-        $this->mEutil->setProxy($host, $port, $user, $pass);
+        $this->mEutils->setProxy($host, $port, $user, $pass);
     }
 
     /**
@@ -72,7 +72,7 @@ class Pubmed
     public function search($term, $limit = 100, $offset = 0)
     {
         $pmids = $this->getPubmedIds($term, $limit, $offset);
-        $articles = $this->getArticles($pmids, $limit, $offset);
+        $articles = $this->getArticles($pmids);
 
         return $articles;
     }
@@ -94,7 +94,7 @@ class Pubmed
         $cfname = md5($term.$limit.$offset).'.xml';
         $xml = $this->loadCache(self::CACHE_TYPE_ESEARCH, $cfname);
         if (false === $xml) {
-            $xml = $this->mEutil->esearch('pubmed', $term, $limit, $offset);
+            $xml = $this->mEutils->esearch('pubmed', $term, $limit, $offset);
             if (false === $xml) {
                 return [];
             }
@@ -128,13 +128,15 @@ class Pubmed
             $ret[$pmid] = $article;
         }
         if (!empty($efetchIds)) {
+            // if more than about 200 UIDs are to be provided, the request should be made using the HTTP POST method.
+            // see:  https://www.ncbi.nlm.nih.gov/books/NBK25499/
             $limit = 100;
             for ($offset = 0; $offset < count($efetchIds); $offset += $limit) {
                 $ids = array_slice($efetchIds, $offset, $limit);
                 $cfname = md5(implode(',', $ids)).'.xml';
                 $xml = $this->loadCache(self::CACHE_TYPE_EFETCH, $cfname);
                 if (false === $xml) {
-                    $xml = $this->mEutil->efetch('pubmed', $ids, $limit, 0);
+                    $xml = $this->mEutils->efetch('pubmed', $ids, $limit, 0);
                     if (false !== $xml) {
                         $this->saveCache(self::CACHE_TYPE_EFETCH, $cfname, $xml);
                     }

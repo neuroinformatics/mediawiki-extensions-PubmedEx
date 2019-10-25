@@ -2,7 +2,7 @@
 
 namespace MediaWiki\Extension\PubmedEx;
 
-class EntrezEutil
+class EntrezEutils
 {
     const ESEARCH_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
     const EFETCH_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
