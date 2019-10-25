@@ -387,7 +387,7 @@ class PubmedBookArticle extends AbstractArticle
     }
 
     /**
-     * get cited medium.
+     * get medium.
      *
      * @return string
      */

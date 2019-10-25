@@ -1,7 +1,7 @@
 {
         "@metadata": {
                 "authors": [
-                        "Yoshihiro OKUMURA"
+                        "Yoshihiro Okumura"
                 ]
         },
         "pubmedex-desc": "Provides <code>&lt;pubmed&gt;</code>...<code>&lt;/pubmed&gt;</code> tags to show article information fetched from [https://ncbi.nlm.nih.gov/pubmed/ PubMed]"

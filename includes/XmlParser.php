@@ -4,7 +4,7 @@ namespace MediaWiki\Extension\PubmedEx;
 
 /**
  * xml parser for the pubmed response
- * it is based on http://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd.
+ * this is based on http://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd.
  */
 class XmlParser
 {
