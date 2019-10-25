@@ -32,33 +32,62 @@ class Hooks
         global $wgPubmedProxyHost, $wgPubmedProxyPort, $wgPubmedProxyUser, $wgPubmedProxyPass;
         $html = [];
         $term = trim($input);
-        $limit = isset($args['limit']) ? (int) $args['limit'] : $wgPubmedLimit;
-        $offset = isset($args['offset']) ? (int) $args['offset'] : $wgPubmedOffset;
-        $templatefile = isset($args['templatefile']) ? $args['templatefile'] : $wgPubmedTemplateFile;
         $cache = '' !== $wgPubmedCache ? $wgPubmedCache : $wgUploadDirectory.'/pubmed';
-        try {
-            $pubmed = new Pubmed($wgPubmedApiKey);
-            $pubmed->setCache($cache, $wgPubmedCacheExpires);
-            if ('' !== $wgPubmedProxyHost) {
-                $pubmed->setProxy($wgPubmedProxyHost, $wgPubmedProxyPort, $wgPubmedProxyUser, $wgPubmedProxyPass);
-            }
-            $articles = $pubmed->search($term, $limit, $offset);
-            if (!empty($articles)) {
+        $limit = (int) (isset($args['limit']) ? $args['limit'] : $wgPubmedLimit);
+        if (0 >= $limit || 500 < $limit) {
+            return self::renderErrorResponse('Bad limit parameter.');
+        }
+        $offset = (int) (isset($args['offset']) ? $args['offset'] : $wgPubmedOffset);
+        if (0 > $offset || 500 < $offset) {
+            return self::renderErrorResponse('Bad offset parameter.');
+        }
+        $templatefile = isset($args['templatefile']) ? trim($args['templatefile']) : $wgPubmedTemplateFile;
+        if (!preg_match('/\A[a-zA-Z0-9_-]+\.php\z/', $templatefile)) {
+            return self::renderErrorResponse('Bad templatefile parameter.');
+        } else {
+            try {
+                $pubmed = new Pubmed($wgPubmedApiKey);
+                $pubmed->setCache($cache, $wgPubmedCacheExpires);
+                if ('' !== $wgPubmedProxyHost) {
+                    $pubmed->setProxy($wgPubmedProxyHost, $wgPubmedProxyPort, $wgPubmedProxyUser, $wgPubmedProxyPass);
+                }
+                $articles = $pubmed->search($term, $limit, $offset);
+                if (empty($articles)) {
+                    return self::renderErrorResponse('Resource not found in PubMed.');
+                }
                 $template = new Template($templatefile);
                 foreach ($articles as $article) {
                     $html[] = $template->render($article);
                 }
-            } else {
-                $html[] = '<span style="color:red;font-weight:bold;">Resource not found in PubMed.</span>';
+            } catch (\Exception $e) {
+                return self::renderErrorResponse($e->getMessage());
             }
-        } catch (\Exception $e) {
-            $html[] = '<span style="color:red;font-weight:bold;">'.$e->getMessage().'</span>';
         }
-        // start the rendering the html output
-        $output = '<!-- MediaWiki extension PubmedEx -->';
-        $output .= implode('<br />', $html);
-        $output .= '<!-- End of PubmedEx -->';
 
-        return $output;
+        return self::renderResponse(implode('<br />', $html));
+    }
+
+    /**
+     * render error response.
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    private static function renderErrorResponse($message)
+    {
+        return self::renderResponse('<span style="color:red;font-weight:bold;">'.$message.'</span>');
+    }
+
+    /**
+     * render response.
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    private static function renderResponse($message)
+    {
+        return '<!-- MediaWiki extension PubmedEx -->'.$message.'<!-- End of PubmedEx -->';
     }
 }
