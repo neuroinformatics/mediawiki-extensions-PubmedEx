@@ -88,6 +88,6 @@ class Hooks
      */
     private static function renderResponse($message)
     {
-        return '<!-- MediaWiki extension PubmedEx -->'.$message.'<!-- End of PubmedEx -->';
+        return ['<!-- MediaWiki extension PubmedEx -->'.$message.'<!-- End of PubmedEx -->', 'markerType' => 'nowiki'];
     }
 }
