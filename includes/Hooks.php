@@ -38,7 +38,7 @@ class Hooks
             return self::renderErrorResponse('Bad limit parameter.');
         }
         $offset = (int) (isset($args['offset']) ? $args['offset'] : $wgPubmedOffset);
-        if (0 > $offset || 500 < $offset) {
+        if (0 > $offset) {
             return self::renderErrorResponse('Bad offset parameter.');
         }
         $templatefile = isset($args['templatefile']) ? trim($args['templatefile']) : $wgPubmedTemplateFile;
