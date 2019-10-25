@@ -18,7 +18,7 @@
       }
   endif; ?>.
 <?php elseif ('PubmedBookArticle' == $Article->ArticleType) : ?>
-  <span style="font-weight:bold;"><?= $Article->Authors; ?> (<?= $Article->Year; ?>).</span><br />
+  <strong><?= $Article->Authors; ?> (<?= $Article->Year; ?>).</strong><br />
   <?= $Article->Title; ?>.
   In <?= '' !== $Article->Editors ? $Article->Editors.' '.(1 < $Article->NumOfEditors ? '(Eds.)' : '(Ed.)').', ' : ''; ?>
   <em><?= $Article->Book; ?></em><?php if ('' !== $Article->Pages) : ?> (pp. <?= $Artcle->Pages; ?>)<?php endif; ?>.
