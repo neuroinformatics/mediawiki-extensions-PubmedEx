@@ -66,7 +66,7 @@ wfLoadExtension("PubmedEx");
 #### override template file `yetanother.php` dynamically.
 
 ```MediaWiki
-<pubmed template="yetanother.php">15046238</pubmed>
+<pubmed templatefile="yetanother.php">15046238</pubmed>
 ```
 
 ## Changes from the original version
