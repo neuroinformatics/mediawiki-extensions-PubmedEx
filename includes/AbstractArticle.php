@@ -178,8 +178,8 @@ abstract class AbstractArticle
                     $initials = $this->text($_Author['Initials']);
                     $initialsWithComma = '';
                     if (isset($_Author['Initials'])) {
-                        for ($i = 0; $i < strlen($initials); ++$i) {
-                            $initialsWithComma .= substr($initials, $i, 1).'.';
+                        for ($i = 0; $i < mb_strlen($initials, 'UTF-8'); ++$i) {
+                            $initialsWithComma .= mb_substr($initials, $i, 1, 'UTF-8').'.';
                         }
                     }
                     switch ($type) {

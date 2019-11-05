@@ -76,7 +76,7 @@ class FileCache
         }
         [$dpath, $fpath] = $this->getPath($type, $fname);
         $data = @file_get_contents($fpath);
-        if ($data === false) {
+        if (false === $data) {
             throw new \Exception('Could not read cache file : '.$fpath);
         }
 
