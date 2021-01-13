@@ -97,7 +97,6 @@ class Pubmed
         $cfname = md5($term.$limit.$offset).'.xml';
         $xml = $this->loadCache(self::CACHE_TYPE_ESEARCH, $cfname);
         $isNew = false;
-        $xml = false;
         if (false === $xml) {
             $xml = $this->mEutils->esearch('pubmed', $term, $limit, $offset);
             if (false === $xml) {
