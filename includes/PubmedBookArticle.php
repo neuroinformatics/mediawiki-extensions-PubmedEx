@@ -66,6 +66,7 @@ class PubmedBookArticle extends AbstractArticle
                 $Type = $this->attribute($_AuthorList, 'Type');
                 if ('authors' === $Type) {
                     $Author = $_AuthorList['Author']; // required
+
                     return $this->renderAuthors($Author);
                 }
             }
@@ -314,6 +315,7 @@ class PubmedBookArticle extends AbstractArticle
                 $Type = $this->attribute($_AuthorList, 'Type');
                 if ('editors' === $Type) {
                     $Author = $_AuthorList['Author']; // required
+
                     return $this->renderAuthors($Author);
                 }
             }
@@ -339,6 +341,7 @@ class PubmedBookArticle extends AbstractArticle
                 $Type = $this->attribute($_AuthorList, 'Type');
                 if ('editors' === $Type) {
                     $Author = $_AuthorList['Author']; // required
+
                     return count($Author);
                 }
             }

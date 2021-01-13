@@ -91,16 +91,24 @@ class Pubmed
     protected function getPubmedIds($term, $limit, $offset)
     {
         $term = trim($term);
+        if (preg_match('/^\d+((\s*,\s*)+\d+)*$/', $term)) {
+            return array_map('trim', explode(',', $term));
+        }
         $cfname = md5($term.$limit.$offset).'.xml';
         $xml = $this->loadCache(self::CACHE_TYPE_ESEARCH, $cfname);
+        $isNew = false;
+        $xml = false;
         if (false === $xml) {
             $xml = $this->mEutils->esearch('pubmed', $term, $limit, $offset);
             if (false === $xml) {
                 return [];
             }
-            $this->saveCache(self::CACHE_TYPE_ESEARCH, $cfname, $xml);
+            $isNew = true;
         }
         $pmids = XmlParser::eSearchGetIds($xml);
+        if ($isNew && !empty($pmids)) {
+            $this->saveCache(self::CACHE_TYPE_ESEARCH, $cfname, $xml);
+        }
 
         return $pmids;
     }
@@ -158,6 +166,7 @@ class Pubmed
     /**
      * load cache data.
      *
+     * @param string $type
      * @param string $fname
      *
      * @return array|bool
@@ -172,6 +181,7 @@ class Pubmed
     /**
      * save cache data.
      *
+     * @param string $type
      * @param string $fname
      * @param mixed  $value
      *

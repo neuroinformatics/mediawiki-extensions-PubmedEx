@@ -42,6 +42,7 @@ class FileCache
     /**
      * save data.
      *
+     * @param string $type
      * @param string $fname
      * @param string $data
      *
@@ -63,6 +64,7 @@ class FileCache
     /**
      * load data.
      *
+     * @param string $type
      * @param string $fname
      *
      * @return string|bool

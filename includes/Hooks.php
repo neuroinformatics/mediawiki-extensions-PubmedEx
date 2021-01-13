@@ -6,8 +6,6 @@ class Hooks
 {
     /**
      * register tag renderer callbacks.
-     *
-     * @param \Parser $parser
      */
     public static function onParserFirstCallInit(\Parser $parser)
     {
@@ -18,10 +16,7 @@ class Hooks
     /**
      * render <pubmed>.
      *
-     * @param string   $input
-     * @param array    $args
-     * @param \Parser  $parser
-     * @param \PPFrame $frame
+     * @param string $input
      *
      * @return string
      */
