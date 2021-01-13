@@ -1,9 +1,9 @@
 {
 	"name": "PubmedEx",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"author": [
 		"Yoshihiro Okumura",
-		"Andreas Bohne-Lang(Original)"
+		"Andreas Bohne-Lang (Original Concept)"
 	],
 	"url": "https://github.com/neuroinformatics/mediawiki-extensions-PubmedEx",
 	"descriptionmsg": "pubmedex-desc",

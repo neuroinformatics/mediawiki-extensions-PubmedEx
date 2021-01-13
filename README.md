@@ -91,7 +91,7 @@ This software is licensed under the [GNU General Public License 2.0 or later](CO
 ## Authors
 
 - [Yoshihiro Okumura](https://github.com/orrisroot)
-- [Andreas Bohne-Lang](https://github.com/bohnelang) (Original Author)
+- [Andreas Bohne-Lang](https://github.com/bohnelang) (Original Concept)
 
 ## Usage examples
 
