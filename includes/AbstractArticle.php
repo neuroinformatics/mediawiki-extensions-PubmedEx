@@ -174,8 +174,8 @@ abstract class AbstractArticle
                     $ret[] = $this->text($_Author['CollectiveName']);
                 } else {
                     $lastName = $this->text($_Author['LastName']);
-                    $foreName = $this->text($_Author['ForeName']);
-                    $initials = $this->text($_Author['Initials']);
+                    $foreName = isset($_Author['ForeName']) ? $this->text($_Author['ForeName']) : '';
+                    $initials = isset($_Author['Initials']) ? $this->text($_Author['Initials']) : '';
                     $initialsWithComma = '';
                     if (isset($_Author['Initials'])) {
                         for ($i = 0; $i < mb_strlen($initials, 'UTF-8'); ++$i) {
