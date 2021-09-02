@@ -11,7 +11,7 @@ class XmlParser
     /**
      * force text elements of efetch result xml.
      */
-    const EFETCH_FORCE_TEXT_ELEMENTS = [
+    public const EFETCH_FORCE_TEXT_ELEMENTS = [
         'AbstractText',
         'Affiliation',
         'ArticleTitle',
@@ -32,7 +32,7 @@ class XmlParser
     /**
      * repeatable elements of efetch result xml.
      */
-    const EFETCH_REPEATABLE_ELEMENTS = [
+    public const EFETCH_REPEATABLE_ELEMENTS = [
         'PubmedArticleSet' => ['PubmedArticle', 'PubmedBookArticle'],
         'BookDocumentSet' => ['BookDocument'],
         'PubmedBookArticleSet' => ['PubmedBookArticle'],

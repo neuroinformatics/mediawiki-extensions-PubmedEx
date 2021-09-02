@@ -4,9 +4,9 @@ namespace MediaWiki\Extension\PubmedEx;
 
 class Pubmed
 {
-    const CACHE_TYPE_ESEARCH = 'esearch';
-    const CACHE_TYPE_EFETCH = 'efetch';
-    const CACHE_TYPE_PMID = 'pmid';
+    public const CACHE_TYPE_ESEARCH = 'esearch';
+    public const CACHE_TYPE_EFETCH = 'efetch';
+    public const CACHE_TYPE_PMID = 'pmid';
 
     /**
      * eutil instance.

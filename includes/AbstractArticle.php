@@ -7,9 +7,9 @@ abstract class AbstractArticle
     /**
      * display name types.
      */
-    const NAME_TYPE_LI = 0; // LastName, Initials
-    const NAME_TYPE_LF = 1; // LastNAme, ForeName
-    const NAME_TYPE_FL = 2; // ForeName LastName
+    public const NAME_TYPE_LI = 0; // LastName, Initials
+    public const NAME_TYPE_LF = 1; // LastNAme, ForeName
+    public const NAME_TYPE_FL = 2; // ForeName LastName
 
     /**
      * article.
