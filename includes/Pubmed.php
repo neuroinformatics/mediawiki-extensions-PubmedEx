@@ -131,8 +131,9 @@ class Pubmed
             $article = (false !== $json) ? json_decode($json, true) : false;
             if (false === $article) {
                 $efetchIds[] = $pmid;
+            } else {
+                $ret[$pmid] = $article;
             }
-            $ret[$pmid] = $article;
         }
         if (!empty($efetchIds)) {
             // if more than about 200 UIDs are to be provided, the request should be made using the HTTP POST method.
