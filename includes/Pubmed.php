@@ -141,13 +141,11 @@ class Pubmed
             $limit = 100;
             for ($offset = 0; $offset < count($efetchIds); $offset += $limit) {
                 $ids = array_slice($efetchIds, $offset, $limit);
-                $cfname = md5(implode(',', $ids)).'.xml';
-                $xml = $this->loadCache(self::CACHE_TYPE_EFETCH, $cfname);
-                if (false === $xml) {
+                $ecfname = md5(implode(',', $ids)).'.xml';
+                $xml = $this->loadCache(self::CACHE_TYPE_EFETCH, $ecfname);
+                $nocache = (false === $xml);
+                if ($nocache) {
                     $xml = $this->mEutils->efetch('pubmed', $ids, $limit, 0);
-                    if (false !== $xml) {
-                        $this->saveCache(self::CACHE_TYPE_EFETCH, $cfname, $xml);
-                    }
                 }
                 if (false !== $xml) {
                     $articles = XmlParser::eFetchGetArticles($xml);
@@ -155,6 +153,9 @@ class Pubmed
                         $ret[$pmid] = $article;
                         $cfname = $pmid.'.json';
                         $this->saveCache(self::CACHE_TYPE_PMID, $cfname, json_encode($article));
+                    }
+                    if ($nocache && count($ids) === count($articles)) {
+                        $this->saveCache(self::CACHE_TYPE_EFETCH, $ecfname, $xml);
                     }
                 }
             }
