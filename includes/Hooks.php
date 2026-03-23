@@ -39,24 +39,23 @@ class Hooks
         $templateFile = isset($args['templatefile']) ? trim($args['templatefile']) : $wgPubmedTemplateFile;
         if (!preg_match('/\A[a-zA-Z0-9_-]+\.php\z/', $templateFile)) {
             return self::renderErrorResponse('Bad templatefile parameter.');
-        } else {
-            try {
-                $pubmed = new Pubmed($wgPubmedApiKey);
-                $pubmed->setCache($cache, $wgPubmedCacheExpires);
-                if ('' !== $wgPubmedProxyHost) {
-                    $pubmed->setProxy($wgPubmedProxyHost, $wgPubmedProxyPort, $wgPubmedProxyUser, $wgPubmedProxyPass);
-                }
-                $articles = $pubmed->search($term, $limit, $offset);
-                if (empty($articles)) {
-                    return self::renderErrorResponse('Resource not found in PubMed.');
-                }
-                $template = new Template($templateFile);
-                foreach ($articles as $article) {
-                    $html[] = $template->render($article);
-                }
-            } catch (\Exception $e) {
-                return self::renderErrorResponse($e->getMessage());
+        }
+        try {
+            $pubmed = new Pubmed($wgPubmedApiKey);
+            $pubmed->setCache($cache, $wgPubmedCacheExpires);
+            if ('' !== $wgPubmedProxyHost) {
+                $pubmed->setProxy($wgPubmedProxyHost, $wgPubmedProxyPort, $wgPubmedProxyUser, $wgPubmedProxyPass);
             }
+            $articles = $pubmed->search($term, $limit, $offset);
+            if (empty($articles)) {
+                return self::renderErrorResponse('Resource not found in PubMed.');
+            }
+            $template = new Template($templateFile);
+            foreach ($articles as $article) {
+                $html[] = $template->render($article);
+            }
+        } catch (\Exception $e) {
+            return self::renderErrorResponse($e->getMessage());
         }
 
         return self::renderResponse(implode('<br />', $html));

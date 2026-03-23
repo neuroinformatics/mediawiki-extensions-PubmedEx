@@ -20,7 +20,7 @@ class Pubmed
      *
      * @var FileCache
      */
-    protected $mCache = null;
+    protected $mCache;
 
     /**
      * constructor.
@@ -184,7 +184,6 @@ class Pubmed
      *
      * @param string $type
      * @param string $fname
-     * @param mixed  $value
      *
      * @throws \Exception
      */

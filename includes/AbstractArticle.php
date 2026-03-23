@@ -150,7 +150,7 @@ abstract class AbstractArticle
             case 'epublish':
                 $ret[] = 'e';
                 break;
-         }
+        }
 
         return !empty($ret) ? '('.implode(' ', $ret).')' : '';
     }
@@ -205,7 +205,7 @@ abstract class AbstractArticle
         $last = array_pop($ret);
         $dash = '';
         if (($showNum - 1) < count($ret)) {
-            $ret = array_slice($ret, 0, ($showNum - 1));
+            $ret = array_slice($ret, 0, $showNum - 1);
             $dash .= ', ...';
         }
 
@@ -217,8 +217,6 @@ abstract class AbstractArticle
      *
      * @param array $node
      * @param array $paths
-     *
-     * @return mixed
      */
     final protected function findNode($node, $paths)
     {

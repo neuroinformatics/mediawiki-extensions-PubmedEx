@@ -164,13 +164,12 @@ class PubmedBookArticle extends AbstractArticle
             $MedlinePgn = $this->findNode($Pagination, ['MedlinePgn']);
             if (null !== $MedlinePgn) {
                 return $this->text($MedlinePgn);
-            } else {
-                $StartPage = $this->findNode($Pagination, ['StartPage']);
-                if (null !== $StartPage) {
-                    $EndPage = $this->findNode($Pagination, ['EndPage']);
+            }
+            $StartPage = $this->findNode($Pagination, ['StartPage']);
+            if (null !== $StartPage) {
+                $EndPage = $this->findNode($Pagination, ['EndPage']);
 
-                    return $this->text($StartPage).(null !== $EndPage ? '-'.$this->text($EndPage) : '');
-                }
+                return $this->text($StartPage).(null !== $EndPage ? '-'.$this->text($EndPage) : '');
             }
         }
 

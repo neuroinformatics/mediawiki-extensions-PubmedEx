@@ -16,7 +16,7 @@
             echo $Article->Pages;
         }
     }
-?>.
+    ?>.
 <?php } elseif ('PubmedBookArticle' == $Article->ArticleType) { ?>
   <strong><?php echo $Article->Authors; ?> (<?php echo $Article->Year; ?>).</strong><br />
   <?php echo $Article->Title; ?>.
