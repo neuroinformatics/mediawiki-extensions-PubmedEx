@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "esbenp.prettier-vscode",
+    "junstyle.php-cs-fixer",
+    "redhat.vscode-xml"
+  ]
+}

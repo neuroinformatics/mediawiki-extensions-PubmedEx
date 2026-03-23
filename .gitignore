@@ -4,7 +4,6 @@ npm-debug.log
 yarn-error.log
 
 /.idea
-/.vscode
 /.vagrant
 .php_cs.cache
 .php-cs-fixer.cache
