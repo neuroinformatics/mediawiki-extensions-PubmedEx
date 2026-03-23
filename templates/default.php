@@ -21,7 +21,7 @@
   <strong><?php echo $Article->Authors; ?> (<?php echo $Article->Year; ?>).</strong><br />
   <?php echo $Article->Title; ?>.
   In <?php echo '' !== $Article->Editors ? $Article->Editors.' '.(1 < $Article->NumOfEditors ? '(Eds.)' : '(Ed.)').', ' : ''; ?>
-  <em><?php echo $Article->Book; ?></em><?php if ('' !== $Article->Pages) { ?> (pp. <?php echo $Artcle->Pages; ?>)<?php } ?>.
+  <em><?php echo $Article->Book; ?></em><?php if ('' !== $Article->Pages) { ?> (pp. <?php echo $Article->Pages; ?>)<?php } ?>.
   <?php echo '' !== $Article->PublisherLocation ? $Article->PublisherLocation.': ' : ''; ?><?php echo $Article->PublisherName; ?>.
 <?php } ?>
 <?php include __DIR__.'/extlinks.inc.php'; ?>
