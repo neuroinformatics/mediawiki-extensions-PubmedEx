@@ -160,12 +160,12 @@ abstract class AbstractArticle
      *
      * @param array  $Author
      * @param int    $type
-     * @param string $lastsep
-     * @param int    $shownum
+     * @param string $lastSep
+     * @param int    $showNum
      *
      * @return string
      */
-    protected function renderAuthors($Author, $type = self::NAME_TYPE_LI, $lastsep = ', &amp;', $shownum = 7)
+    protected function renderAuthors($Author, $type = self::NAME_TYPE_LI, $lastSep = ', &amp;', $showNum = 7)
     {
         $ret = [];
         if (null !== $Author) {
@@ -199,17 +199,17 @@ abstract class AbstractArticle
         if (empty($ret)) {
             return '';
         }
-        if (0 === $shownum) {
-            $shownum = count($ret);
+        if (0 === $showNum) {
+            $showNum = count($ret);
         }
         $last = array_pop($ret);
         $dash = '';
-        if (($shownum - 1) < count($ret)) {
-            $ret = array_slice($ret, 0, ($shownum - 1));
+        if (($showNum - 1) < count($ret)) {
+            $ret = array_slice($ret, 0, ($showNum - 1));
             $dash .= ', ...';
         }
 
-        return !empty($ret) ? implode(', ', $ret).$dash.$lastsep.' '.$last : $last;
+        return !empty($ret) ? implode(', ', $ret).$dash.$lastSep.' '.$last : $last;
     }
 
     /**

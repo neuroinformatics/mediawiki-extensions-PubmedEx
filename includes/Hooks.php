@@ -36,8 +36,8 @@ class Hooks
         if (0 > $offset) {
             return self::renderErrorResponse('Bad offset parameter.');
         }
-        $templatefile = isset($args['templatefile']) ? trim($args['templatefile']) : $wgPubmedTemplateFile;
-        if (!preg_match('/\A[a-zA-Z0-9_-]+\.php\z/', $templatefile)) {
+        $templateFile = isset($args['templatefile']) ? trim($args['templatefile']) : $wgPubmedTemplateFile;
+        if (!preg_match('/\A[a-zA-Z0-9_-]+\.php\z/', $templateFile)) {
             return self::renderErrorResponse('Bad templatefile parameter.');
         } else {
             try {
@@ -50,7 +50,7 @@ class Hooks
                 if (empty($articles)) {
                     return self::renderErrorResponse('Resource not found in PubMed.');
                 }
-                $template = new Template($templatefile);
+                $template = new Template($templateFile);
                 foreach ($articles as $article) {
                     $html[] = $template->render($article);
                 }

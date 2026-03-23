@@ -58,7 +58,7 @@ class EntrezEutils
     {
         $this->mApiKey = $apiKey;
         if ('' !== $this->mApiKey) {
-            // if api key privided, a site can post up to 10 requests per second
+            // if api key provided, a site can post up to 10 requests per second
             $this->mWait = 100000;
         }
     }

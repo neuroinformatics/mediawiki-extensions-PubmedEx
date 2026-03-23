@@ -21,20 +21,20 @@ class FileCache
     /**
      * constructor.
      *
-     * @param string $cachedir
+     * @param string $cacheDir
      * @param int    $expires
      *
      * @throws \Exception
      */
-    public function __construct($cachedir, $expires = 604800)
+    public function __construct($cacheDir, $expires = 604800)
     {
-        $this->mCacheDir = $cachedir;
+        $this->mCacheDir = $cacheDir;
         $this->mExpires = $expires;
-        if (!is_dir($cachedir)) {
-            if (!@mkdir($cachedir, 0777, true)) {
-                throw new \Exception('Could not create cache directory : '.$cachedir);
+        if (!is_dir($cacheDir)) {
+            if (!@mkdir($cacheDir, 0777, true)) {
+                throw new \Exception('Could not create cache directory : '.$cacheDir);
             }
-        } elseif (!is_writable($cachedir)) {
+        } elseif (!is_writable($cacheDir)) {
             throw new \Exception('Could not found writable cache directory');
         }
     }
@@ -50,14 +50,14 @@ class FileCache
      */
     public function save($type, $fname, $data)
     {
-        [$dpath, $fpath] = $this->getPath($type, $fname);
-        if (!is_dir($dpath)) {
-            if (!@mkdir($dpath, 0777, true)) {
-                throw new \Exception('Could not create cache sub directory : '.$dpath);
+        [$dPath, $fPath] = $this->getPath($type, $fname);
+        if (!is_dir($dPath)) {
+            if (!@mkdir($dPath, 0777, true)) {
+                throw new \Exception('Could not create cache sub directory : '.$dPath);
             }
         }
-        if (false === @file_put_contents($fpath, $data)) {
-            throw new \Exception('Could not write cache file : '.$fpath);
+        if (false === @file_put_contents($fPath, $data)) {
+            throw new \Exception('Could not write cache file : '.$fPath);
         }
     }
 
@@ -76,10 +76,10 @@ class FileCache
         if (!$this->check($type, $fname)) {
             return false;
         }
-        [$dpath, $fpath] = $this->getPath($type, $fname);
-        $data = @file_get_contents($fpath);
+        [$dPath, $fPath] = $this->getPath($type, $fname);
+        $data = @file_get_contents($fPath);
         if (false === $data) {
-            throw new \Exception('Could not read cache file : '.$fpath);
+            throw new \Exception('Could not read cache file : '.$fPath);
         }
 
         return $data;
@@ -97,18 +97,18 @@ class FileCache
      */
     public function check($type, $fname)
     {
-        [$dpath, $fpath] = $this->getPath($type, $fname);
-        if (false === file_exists($fpath)) {
+        [$dPath, $fPath] = $this->getPath($type, $fname);
+        if (false === file_exists($fPath)) {
             return false;
         }
         if ($this->mExpires > 0) {
-            if (false === ($st = @stat($fpath))) {
-                throw new \Exception('Could not get cache file status : '.$fpath);
+            if (false === ($st = @stat($fPath))) {
+                throw new \Exception('Could not get cache file status : '.$fPath);
             }
             $now = time();
             if ($st['mtime'] + $this->mExpires < $now) {
-                if (false === @unlink($fpath)) {
-                    throw new \Exception('Could not remove cache file : '.$fpath);
+                if (false === @unlink($fPath)) {
+                    throw new \Exception('Could not remove cache file : '.$fPath);
                 }
 
                 return false;
@@ -128,9 +128,9 @@ class FileCache
      */
     protected function getPath($type, $fname)
     {
-        $dpath = sprintf('%s/%s/%s', $this->mCacheDir, $type, substr($fname, 0, 2));
-        $fpath = sprintf('%s/%s', $dpath, $fname);
+        $dPath = sprintf('%s/%s/%s', $this->mCacheDir, $type, substr($fname, 0, 2));
+        $fPath = sprintf('%s/%s', $dPath, $fname);
 
-        return [$dpath, $fpath];
+        return [$dPath, $fPath];
     }
 }

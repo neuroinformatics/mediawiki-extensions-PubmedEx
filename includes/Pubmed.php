@@ -9,7 +9,7 @@ class Pubmed
     public const CACHE_TYPE_PMID = 'pmid';
 
     /**
-     * eutil instance.
+     * eutils instance.
      *
      * @var EntrezEutils
      */
@@ -94,8 +94,8 @@ class Pubmed
         if (preg_match('/^\d+((\s*,\s*)+\d+)*$/', $term)) {
             return array_map('trim', explode(',', $term));
         }
-        $cfname = md5($term.$limit.$offset).'.xml';
-        $xml = $this->loadCache(self::CACHE_TYPE_ESEARCH, $cfname);
+        $cfName = md5($term.$limit.$offset).'.xml';
+        $xml = $this->loadCache(self::CACHE_TYPE_ESEARCH, $cfName);
         $isNew = false;
         if (false === $xml) {
             $xml = $this->mEutils->esearch('pubmed', $term, $limit, $offset);
@@ -106,7 +106,7 @@ class Pubmed
         }
         $pmids = XmlParser::eSearchGetIds($xml);
         if ($isNew && !empty($pmids)) {
-            $this->saveCache(self::CACHE_TYPE_ESEARCH, $cfname, $xml);
+            $this->saveCache(self::CACHE_TYPE_ESEARCH, $cfName, $xml);
         }
 
         return $pmids;
@@ -126,8 +126,8 @@ class Pubmed
         $ret = [];
         $efetchIds = [];
         foreach ($pmids as $pmid) {
-            $cfname = $pmid.'.json';
-            $json = $this->loadCache(self::CACHE_TYPE_PMID, $cfname);
+            $cfName = $pmid.'.json';
+            $json = $this->loadCache(self::CACHE_TYPE_PMID, $cfName);
             $article = (false !== $json) ? json_decode($json, true) : false;
             if (false === $article) {
                 $efetchIds[] = $pmid;
@@ -141,8 +141,8 @@ class Pubmed
             $limit = 100;
             for ($offset = 0; $offset < count($efetchIds); $offset += $limit) {
                 $ids = array_slice($efetchIds, $offset, $limit);
-                $ecfname = md5(implode(',', $ids)).'.xml';
-                $xml = $this->loadCache(self::CACHE_TYPE_EFETCH, $ecfname);
+                $ecFname = md5(implode(',', $ids)).'.xml';
+                $xml = $this->loadCache(self::CACHE_TYPE_EFETCH, $ecFname);
                 $nocache = (false === $xml);
                 if ($nocache) {
                     $xml = $this->mEutils->efetch('pubmed', $ids, $limit, 0);
@@ -151,11 +151,11 @@ class Pubmed
                     $articles = XmlParser::eFetchGetArticles($xml);
                     foreach ($articles as $pmid => $article) {
                         $ret[$pmid] = $article;
-                        $cfname = $pmid.'.json';
-                        $this->saveCache(self::CACHE_TYPE_PMID, $cfname, json_encode($article));
+                        $cfName = $pmid.'.json';
+                        $this->saveCache(self::CACHE_TYPE_PMID, $cfName, json_encode($article));
                     }
                     if ($nocache && count($ids) === count($articles)) {
-                        $this->saveCache(self::CACHE_TYPE_EFETCH, $ecfname, $xml);
+                        $this->saveCache(self::CACHE_TYPE_EFETCH, $ecFname, $xml);
                     }
                 }
             }

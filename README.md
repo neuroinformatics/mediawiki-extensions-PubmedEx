@@ -63,10 +63,10 @@ wfLoadExtension("PubmedEx");
 <pubmed limit="5" offset="5">neuroinformatics</pubmed>
 ```
 
-#### override template file `yetanother.php` dynamically.
+#### override template file `yet-another.php` dynamically.
 
 ```MediaWiki
-<pubmed templatefile="yetanother.php">15046238</pubmed>
+<pubmed templatefile="yet-another.php">15046238</pubmed>
 ```
 
 ## Changes from the original version
@@ -76,7 +76,7 @@ wfLoadExtension("PubmedEx");
   - new PubMed xml parser to support PubmedBookArticle data.
   - new cache system to store each pubmed responses and parsed article data.
   - new template system for more flexible format support.
-  - modern MediaWiki extention framework.
+  - modern MediaWiki extension framework.
 - Global variables
   - added: `$wgPubmedApiKey`, `$wgCacheExpires` and `$wgPubmedTemplateFile`
   - removed: `$wgPubmedPath`,`$wgPubmedLayoutFile`, `$wgPubmedLayoutLinks`, `$wgPubmedSOAP`, `$wgNUSOAPencodinghack`, `$wgPubmedWDSLVersion` and `$wgPubmedDEBUG`
@@ -95,4 +95,4 @@ This software is licensed under the [GNU General Public License 2.0 or later](CO
 
 ## Usage examples
 
-- https://bsd.neuroinf.jp Brain Science Dictionary project in Japanese.
+- [Brain Science Dictionary](https://bsd.neuroinf.jp/) Project in Japanese.

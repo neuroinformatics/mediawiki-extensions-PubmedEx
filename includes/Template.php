@@ -20,12 +20,12 @@ class Template
      */
     public function __construct($fname)
     {
-        $dpath = dirname(__DIR__).'/templates';
-        $fpath = $dpath.'/'.$fname;
-        if (!file_exists($fpath)) {
+        $dPath = dirname(__DIR__).'/templates';
+        $fPath = $dPath.'/'.$fname;
+        if (!file_exists($fPath)) {
             throw new \Exception('Could not find template file : '.$fname);
         }
-        $this->mTemplateFile = $fpath;
+        $this->mTemplateFile = $fPath;
     }
 
     /**

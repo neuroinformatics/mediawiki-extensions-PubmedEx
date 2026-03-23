@@ -149,9 +149,9 @@ class XmlParser
             $children = [];
             foreach ($element->childNodes as $ch) {
                 if (XML_TEXT_NODE === $ch->nodeType) {
-                    $text .= $ch->wholeText;
+                    $text .= $ch->textContent;
                 } elseif (XML_ELEMENT_NODE === $ch->nodeType) {
-                    $children[$ch->tagName][] = self::element2array($ch);
+                    $children[$ch->nodeName][] = self::element2array($ch);
                 }
             }
             $text = trim($text);
